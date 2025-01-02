@@ -5,9 +5,11 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
 
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Calendar;
 
 public class LibUtils {
 
@@ -92,19 +94,41 @@ public class LibUtils {
 
 
 
-    public static Map<String, Object> createRandomTeam() {
+    public static Map<String, Object> createRandomUser() {
 
+        // Create a Faker instance
         Faker faker = new Faker();
-        Map<String, Object> teamMap = new LinkedHashMap<>();
+        // Create a LinkedHashMap
+        Map<String, Object> userMap = new LinkedHashMap<>();
 
+        // Generate dynamic dates as strings
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
+        // Create a random start date as a string (future date within 30 days)
+        Calendar startDateCalendar = Calendar.getInstance();
+        startDateCalendar.add(Calendar.DAY_OF_YEAR, faker.number().numberBetween(1, 30));
+        String startDate = dateFormat.format(startDateCalendar.getTime());
 
-        teamMap.put("campus-location", "VA");
-        teamMap.put("batch-number", "36");
-        teamMap.put("team-name", faker.team().name());
+        // Create an end date as a string (1 year after the start date)
+        Calendar endDateCalendar = (Calendar) startDateCalendar.clone();
+        endDateCalendar.add(Calendar.YEAR, 1);
+        String endDate = dateFormat.format(endDateCalendar.getTime());
+        String password = faker.lorem().characters(10, true, true);
 
-        // Fill the required fields
+        int randomNumber = faker.number().numberBetween(1, 500);
+        String email = "libraryuser" + randomNumber + "@library";
 
-        return teamMap;
+        // Dynamically populate the map using Faker
+        userMap.put("full_name", faker.name().fullName()); // Full name
+        userMap.put("email", email); // Email
+        userMap.put("password", password); // Password as a UUID without hyphens
+        userMap.put("user_group_id", faker.number().numberBetween(2, 3)); // Random user group ID
+        userMap.put("status", "ACTIVE"); // Fixed status
+        userMap.put("start_date", startDate); // Fixed start date
+        userMap.put("end_date", endDate); // Fixed end date
+        userMap.put("address", faker.address().fullAddress()); // Full address
+
+        return userMap;
     }
+
 }

@@ -1,14 +1,12 @@
 package com.library.pages;
 
 import com.library.utilities.BrowserUtils;
-import com.library.utilities.ConfigurationReader;
 import com.library.utilities.Driver;
 import com.library.utilities.LibUtils;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class SignInPage {

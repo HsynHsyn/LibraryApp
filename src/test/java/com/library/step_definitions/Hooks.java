@@ -10,7 +10,6 @@ import io.restassured.RestAssured;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 
-import java.lang.module.Configuration;
 import java.time.Duration;
 
 public class Hooks {

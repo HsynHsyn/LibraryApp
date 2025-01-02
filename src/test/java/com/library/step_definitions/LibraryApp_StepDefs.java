@@ -2,8 +2,8 @@ package com.library.step_definitions;
 
 import com.library.pages.SignInPage;
 import com.library.pages.TopNavigationBar;
-
 import com.library.utilities.BrowserUtils;
+import com.library.utilities.ConfigurationReader;
 import com.library.utilities.DB_Util;
 import com.library.utilities.LibUtils;
 import io.cucumber.java.en.*;
@@ -30,7 +30,6 @@ public class LibraryApp_StepDefs {
     ValidatableResponse thenPart;
     private String pathParam;
     Map<String,Object> randomDataMap;
-
     //-----------------------US-1----------------------------------
 
     @Given("I logged Library api as a {string}")
@@ -38,24 +37,17 @@ public class LibraryApp_StepDefs {
         givenPart.header("x-library-token", LibUtils.generateTokenByRole(role));
 
     }
-
-
     @Given("Accept header is {string}")
     public void accept_header_is(String acceptHeader) {
         givenPart.accept(acceptHeader);
 
-
     }
-
     @When("I send GET request to {string} endpoint")
     public void iSendGETRequestToEndpoint(String endpoint) {
-
         response = givenPart.when().get(endpoint);
         jp = response.jsonPath();
         thenPart= response.then();
-
         response.prettyPrint();
-
     }
 
     @Then("status code should be {int}")
@@ -65,24 +57,16 @@ public class LibraryApp_StepDefs {
     }
     @Then("Response Content type is {string}")
     public void response_content_type_is(String contentType) {
-
         thenPart.contentType(contentType);
-
 
     }
     @Then("Each {string} field should not be null")
     public void field_should_not_be_null(String path) {
-
         List<Object> idList = jp.getList(path);
-
         for (Object eachId : idList) {
             //Assert.assertFalse(eachId == null);
             Assert.assertNotNull(eachId);
-
         }
-
-
-
     }
 
     @And("{string} field should not be null")
@@ -90,25 +74,19 @@ public class LibraryApp_StepDefs {
         thenPart.body(path,is(notNullValue()));
         System.out.println("path = " + path);
     }
-
     //-----------------------US-2----------------------------------
-
     @Given("Path param is {string}")
     public void path_param_is(String pathParam) {
-
        this.pathParam = pathParam;
         givenPart.pathParam("id", pathParam);
     }
-
     @Then("{string} field should be same with path param")
     public void field_should_be_same_with_path_param(String actualID) {
-
         String expectedID =pathParam;
         System.out.println("expectedID = " + expectedID);
 
         actualID = jp.getString("id");
         Assert.assertEquals(expectedID,actualID);
-
     }
 
     @Then("following fields should not be null")
@@ -117,20 +95,15 @@ public class LibraryApp_StepDefs {
         for (String eachFields : fields) {
             Assert.assertNotNull(eachFields);
         }
-
         //option2
         assertThat(fields,everyItem(notNullValue()));
 
     }
-
     //-----------------------US-3----------------------------------
-
 
     @Given("Request Content Type header is {string}")
     public void request_content_type_header_is(String contentType) {
-
         givenPart.contentType(contentType);
-
     }
     @Given("I create a random {string} as request body")
     public void i_create_a_random_as_request_body(String randomDataType) {
@@ -140,10 +113,16 @@ public class LibraryApp_StepDefs {
                 randomDataMap = LibUtils.createRandomBook();
                 break;
 
+            case "user":
+                randomDataMap = LibUtils.createRandomUser();
+                break;
+
             default:
                 throw new RuntimeException("Wrong data type is provide");
 
         }
+
+        System.out.println("randomDataMap = " + randomDataMap);
 
         givenPart.formParams(randomDataMap);
 
@@ -188,44 +167,142 @@ public class LibraryApp_StepDefs {
     @Then("UI, Database and API created book information must match")
     public void ui_database_and_api_created_book_information_must_match() {
 
-        //Expected API
-        //Actual UI and DB
-
         //GET DATA FROM API
-        //String expectedAPI = (String) randomDataMap.get("isbn");
+
         String expectedAPI = jp.getString("book_id");
-        System.out.println("expectedIsbn = " + expectedAPI);
+        System.out.println("expectedAPI = " + expectedAPI);
 
-        //GET DATA FROM UI
-        topNavigationBar.searchButton.click();
-        topNavigationBar.searchButton.sendKeys((CharSequence) randomDataMap.get("name"));
-
-        BrowserUtils.waitFor(2);
-        String actualUI = topNavigationBar.isbn.getText();
-        System.out.println("actualUI = " + actualUI);
-
-        //Assertion for API and UI
-        Assert.assertEquals(expectedAPI,actualUI);
-
-        // GET DATA FROM DATABASE
-
-        String query = "SELECT isbn FROM books WHERE isbn = '" + expectedAPI + "'";
+        //option-1 to get the query
+        /*GET DATA FROM DATABASE
+         String query = "SELECT isbn FROM books WHERE isbn = '" + expectedAPI + "'";
         DB_Util.runQuery(query);
         String actualDB = DB_Util.getFirstRowFirstColumn();
-        System.out.println("actualDB = " + actualDB);
+        System.out.println("actualDB = " + actualDB);*/
+
+        // Write a query
+        String query = "SELECT * FROM books WHERE id = '" + expectedAPI + "'";
+        DB_Util.runQuery(query);
+        //Get the DB one row info
+        Map<String, String > dataMap = DB_Util.getRowMap(1);
+        System.out.println("dataMap = " + dataMap);
 
         //Assertion for API and DB
-        Assert.assertEquals(expectedAPI,actualDB);
+        Assert.assertEquals(expectedAPI,dataMap.get("id"));
+
+        //GET DATA FROM UI
+        //filter by using book name
+        topNavigationBar.searchButton.sendKeys((CharSequence) randomDataMap.get("name"));
+        BrowserUtils.waitFor(2);
+        //Get the isbn value` text
+        String actualUI = topNavigationBar.isbn.getText();
+
+        //Assertion for DB and UI
+        Assert.assertEquals(dataMap.get("isbn"),actualUI);
 
     }
 
     //-----------------------US-4----------------------------------
 
+    @Then("created user information should match with Database")
+    public void created_user_information_should_match_with_database() {
 
-    @Then("“user_id\" field should not be null")
-    public void user_id_field_should_not_be_null() {
+        //GET DATA FROM API
+        // user_id
+        String user_id = jp.getString("user_id");
+        System.out.println("user_id = " + user_id);
+        // Write a query
+        String query = "select full_name, email,password, user_group_id \n" +
+                "       user_group_id, status, start_date,end_date,address \n" +
+                "from users where id='"+ user_id +"'";
+
+        System.out.println("query = " + query);;
+
+        DB_Util.runQuery(query);
+
+        //Get the DB one row info as a MAP
+        Map<String, String> dataMap = DB_Util.getRowMap(1);
+        System.out.println("dataMap = " + dataMap);
+
+        //Get the API info as a Map
+        Map<String, Object> actualAPI = randomDataMap;
+        System.out.println("randomDataMap = " + randomDataMap);
+
+        Assert.assertEquals(randomDataMap.get("email"), dataMap.get("email"));
+
+        /*
+        //second approach for checking every item
+        //check if the keys are the same
+        Assert.assertTrue("Keys are different", dataMap.keySet().equals(actualAPI.keySet()));
+
+       // Compare values for each key
+        for (String key : dataMap.keySet()) {
+
+            if (key.equalsIgnoreCase("password")) {
+                continue;
+            }
+
+                // Get the expected value from the database map (String type)
+                String expectedValue = dataMap.get(key);
+
+                // Get the actual value from the API map (Object type)
+                Object actualValueObj = actualAPI.get(key);
+
+                // Convert the actual value to a String if it's not null
+                String actualValue = (actualValueObj != null) ? actualValueObj.toString() : null;
+
+
+                // Compare the expected value and the actual value
+                Assert.assertEquals("Values do not match for key: " + key, expectedValue, actualValue);
+
+        }
+
+         */ //second approach
+
 
     }
+    @Then("created user should be able to login Library UI")
+    public void created_user_should_be_able_to_login_library_ui() {
+
+        //Get credential from API randomDataMap
+        String username = (String) randomDataMap.get("email");
+        String password = (String) randomDataMap.get("password");
+
+        //Created user login
+        signInPage.login(username,password);
+
+        //Assertion for checking
+        Assert.assertTrue(topNavigationBar.userProfileName.isDisplayed());
+
+    }
+    @Then("created user name should appear in Dashboard Page")
+    public void created_user_name_should_appear_in_dashboard_page() {
+
+        //Navigate to Users page
+        topNavigationBar.usersButton.click();
+        BrowserUtils.waitFor(2);
+
+        //Send the name to search button to filter
+        topNavigationBar.searchButton.sendKeys(topNavigationBar.usersEmail.getText());
+
+        //Assertion for displaying name
+        Assert.assertTrue(topNavigationBar.usersFullName.isDisplayed());
+
+    }
+
+  //-----------------------US-5----------------------------------
+
+
+    @Given("I logged Library api with credentials {string} and {string}")
+    public void i_logged_library_api_with_credentials_and(String string, String string2) {
+
+    }
+
+    @Given("I send token information as request body")
+    public void i_send_token_information_as_request_body() {
+
+    }
+
+
 
 
 }
