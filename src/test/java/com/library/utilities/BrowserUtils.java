@@ -5,6 +5,7 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
@@ -381,6 +382,14 @@ public class BrowserUtils {
     public static String tableDynamicElementFinder(String value){
 
         return Driver.get().findElement(By.xpath("//td[.='"+value+"']")).getText();
+    }
+
+    public static void bookCategoryFinder(String category_id){
+
+       // Select dropdown = new Select(Driver.get().findElement(By.id("book_categories")));
+        Select dropdown = new Select(Driver.get().findElement(By.id("book_categories")));
+
+        dropdown.selectByValue(category_id);
     }
 
 

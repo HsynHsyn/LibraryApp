@@ -68,7 +68,7 @@ public class LibraryApp_StepDefs{
     public void response_content_type_is(String contentType) {
         thenPart.contentType(contentType);
         //soft assertion
-        softly.assertThat(thenPart.contentType(contentType));
+        //softly.assertThat(thenPart.contentType(contentType));
 
     }
     @Then("Each {string} field should not be null")
@@ -78,7 +78,7 @@ public class LibraryApp_StepDefs{
             //Assert.assertFalse(eachId == null);
             Assert.assertNotNull(eachId);
             //soft assertion
-            softly.assertThat(eachId).isNotEqualTo(null);
+            //softly.assertThat(eachId).isNotEqualTo(null);
         }
     }
 
@@ -101,7 +101,7 @@ public class LibraryApp_StepDefs{
         actualID = jp.getString("id");
         Assert.assertEquals(expectedID,actualID);
         //soft assertion
-        softly.assertThat(expectedID).isEqualTo(actualID);
+        //softly.assertThat(expectedID).isEqualTo(actualID);
     }
 
     @Then("following fields should not be null")
@@ -163,27 +163,30 @@ public class LibraryApp_StepDefs{
         //GET DATA FROM API
         String expectedAPI = jp.getString("book_id");
         System.out.println("expectedAPI = " + expectedAPI);
+
         /*//option-1 to get the query
         /*GET DATA FROM DATABASE
          String query = "SELECT isbn FROM books WHERE isbn = '" + expectedAPI + "'";
         DB_Util.runQuery(query);
         String actualDB = DB_Util.getFirstRowFirstColumn();
         System.out.println("actualDB = " + actualDB);*///option-1
+
         // Write a query
         String query = "SELECT * FROM books WHERE id = '" + expectedAPI + "'";
         DB_Util.runQuery(query);
+
         //Get the DB one row info
         Map<String, String > dataMap = DB_Util.getRowMap(1);
         System.out.println("dataMap = " + dataMap);
         //Assertion for API and DB
         Assert.assertEquals(expectedAPI,dataMap.get("id"));
+
         //GET DATA FROM UI
-        //filter by using book name
-        topNavigationBar.searchButton.sendKeys((String) randomDataMap.get("name"));
+        BrowserUtils.bookCategoryFinder(dataMap.get("book_category_id"));
+        topNavigationBar.searchButton.sendKeys(dataMap.get("name"));
         BrowserUtils.waitFor(2);
-        //Get the isbn value` text
-        String value = (String) randomDataMap.get("isbn");
-        String actualUI = BrowserUtils.tableDynamicElementFinder(value);;
+        //Get the isbn value
+        String actualUI = BrowserUtils.tableDynamicElementFinder(dataMap.get("isbn"));;
 
        //Assertion for DB and UI
         Assert.assertEquals(dataMap.get("isbn"),actualUI);
