@@ -78,11 +78,20 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.28</version>
         </dependency>
-    </dependencies>
+
+    <!--soft assertions -->
+    <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>3.26.3</version>
+        <scope>test</scope>
+    </dependency>
+
+</dependencies>
 
 
 
-    <!-- mvn parallel execution-->
+<!-- mvn parallel execution-->
 
     <build>
         <plugins>

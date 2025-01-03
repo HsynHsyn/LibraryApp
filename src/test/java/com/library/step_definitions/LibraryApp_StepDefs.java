@@ -22,6 +22,7 @@ import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import org.assertj.core.api.SoftAssertions;
 
 
 public class LibraryApp_StepDefs{
@@ -35,8 +36,9 @@ public class LibraryApp_StepDefs{
     Map<String,Object> randomDataMap;
     SignInPage signInPage = new SignInPage();
     TopNavigationBar topNavigationBar= new TopNavigationBar();
-
     String token;
+
+    SoftAssertions softly = new SoftAssertions();
     //-----------------------US-1----------------------------------
 
     @Given("I logged Library api as a {string}")
@@ -65,6 +67,8 @@ public class LibraryApp_StepDefs{
     @Then("Response Content type is {string}")
     public void response_content_type_is(String contentType) {
         thenPart.contentType(contentType);
+        //soft assertion
+        softly.assertThat(thenPart.contentType(contentType));
 
     }
     @Then("Each {string} field should not be null")
@@ -73,6 +77,8 @@ public class LibraryApp_StepDefs{
         for (Object eachId : idList) {
             //Assert.assertFalse(eachId == null);
             Assert.assertNotNull(eachId);
+            //soft assertion
+            softly.assertThat(eachId).isNotEqualTo(null);
         }
     }
 
@@ -94,6 +100,8 @@ public class LibraryApp_StepDefs{
 
         actualID = jp.getString("id");
         Assert.assertEquals(expectedID,actualID);
+        //soft assertion
+        softly.assertThat(expectedID).isEqualTo(actualID);
     }
 
     @Then("following fields should not be null")
