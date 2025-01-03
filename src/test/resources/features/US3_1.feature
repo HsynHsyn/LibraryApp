@@ -2,7 +2,7 @@
 Feature: As a librarian, I want to create a new book using add_book endpoint
          so that I can add new books to the system.
 
-  @us3_1 @ui @db
+  @smoke @regression @ui @db
   Scenario: Create a new book ALL LAYERS
     Given I logged Library api as a "librarian"
     And Accept header is "application/json"
