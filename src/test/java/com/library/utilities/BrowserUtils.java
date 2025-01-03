@@ -378,5 +378,10 @@ public class BrowserUtils {
     }
 
 
+    public static String tableDynamicElementFinder(String value){
+
+        return Driver.get().findElement(By.xpath("//td[.='"+value+"']")).getText();
+    }
+
 
 }

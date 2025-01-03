@@ -1,11 +1,13 @@
 package com.library.pages;
 
+import com.library.step_definitions.LibraryApp_StepDefs;
 import com.library.utilities.Driver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
 public class TopNavigationBar {
+
 
     public TopNavigationBar(){
         PageFactory.initElements(Driver.get(),this);
@@ -52,10 +54,8 @@ public class TopNavigationBar {
 
     //-----------------------Users /Add User Page Locators-----------------------------//
 
-    @FindBy(xpath = "(//table[@id='tbl_users']//tbody//tr//td)[3]")
-    public WebElement isbn;
-
-
+//    @FindBy(xpath = "(//td[.='"+ +"']")
+//    public WebElement isbn;
 
 
     //-----------------------Books Page Locators-----------------------------//

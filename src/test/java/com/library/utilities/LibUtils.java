@@ -10,11 +10,12 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Calendar;
+import org.junit.Assert;
 
 public class LibUtils {
 
 
-    public static String getToken(String email,String password){
+    public static String getToken(String email, String password) {
 
         JsonPath jp = RestAssured.given().log().uri()
                 .accept(ContentType.JSON)
@@ -46,14 +47,14 @@ public class LibUtils {
 
         switch (role) {
             case "librarian":
-                email = ConfigurationReader.getProperty("librarian_username") ;
-                password = ConfigurationReader.getProperty("librarian_password") ;
+                email = ConfigurationReader.getProperty("librarian_username");
+                password = ConfigurationReader.getProperty("librarian_password");
                 //email = System.getenv("LIBRARIAN_USERNAME");
                 //password = System.getenv("LIBRARIAN_PASSWORD");
                 break;
 
             case "student":
-                email = ConfigurationReader.getProperty("student_username") ;
+                email = ConfigurationReader.getProperty("student_username");
                 password = ConfigurationReader.getProperty("student_password");
                 //email = System.getenv("STUDENT_USERNAME");
                 //password = System.getenv("STUDENT_PASSWORD");
@@ -74,10 +75,10 @@ public class LibUtils {
 
         Faker faker = new Faker();
         Map<String, Object> bookMap = new LinkedHashMap<>();
-        String name = "hsyn "+faker.book().title();
-        String isbn = "hsyn "+faker.number().digits(13);
+        String name = "hsyn" + faker.book().title();
+        String isbn = "hsyn" + faker.number().digits(13);
         Integer year = faker.number().numberBetween(1900, 2024);
-        String author= faker.book().author();
+        String author = faker.book().author();
         Integer book_category_id = faker.number().numberBetween(1, 10);
         String description = faker.lorem().sentence();
 
@@ -90,8 +91,6 @@ public class LibUtils {
 
         return bookMap;
     }
-
-
 
 
     public static Map<String, Object> createRandomUser() {
@@ -131,4 +130,31 @@ public class LibUtils {
         return userMap;
     }
 
+    //Compare DB and API values
+    public static void AssertAllDBElement(Map<String, Object> randomDataMap, Map<String, String> dataMap) {
+
+        Assert.assertTrue("Keys are different", dataMap.keySet().equals(randomDataMap.keySet()));
+
+        // Compare values for each key
+        for (String key : dataMap.keySet()) {
+
+            if (key.equalsIgnoreCase("password")) {
+                continue;
+            }
+
+            // Get the expected value from the database map (String type)
+            String expectedValue = dataMap.get(key);
+
+            // Get the actual value from the API map (Object type)
+            Object actualValueObj = randomDataMap.get(key);
+
+            // Convert the actual value to a String if it's not null
+            String actualValue = (actualValueObj != null) ? actualValueObj.toString() : null;
+
+
+            // Compare the expected value and the actual value
+            Assert.assertEquals("Values do not match for key: " + key, expectedValue, actualValue);
+        }
+
+    }
 }
